@@ -1,0 +1,78 @@
+<html>
+<head>
+  <title>Ember.js Computed Property Example</title>
+  <link rel="stylesheet" type="text/css" href="../bootstrap/css/bootstrap.min.css">
+  <script type="text/javascript" src="../javascripts/jquery.min.js"></script>
+  <script type="text/javascript" src="../javascripts/ember.js"></script>
+  <script type="text/javascript">
+    var App = Ember.Application.create({});
+    window.App = App;
+
+    App.Cart = Ember.ArrayController.extend({
+      init: function() {
+        this._super();
+        this.set("content", []);
+      }
+    });
+
+    App.ProductController = Ember.Object.extend({
+      content: null,
+      addToCart: function() {
+        this.get("cart").addObject(this.get("content"));
+      },
+
+      inCart: function() {
+        return this.get("cart").contains(this.get("content"));
+      }.property("cart"),
+
+      cartStatus: function() {
+        if(this.get("inCart")) {
+          return "In Cart";
+        } else {
+          return "Add to Cart";
+        }
+      }.property("inCart")
+    });
+
+    App.ProductView = Ember.View.extend({
+      templateName: "product",
+      contentBinding: "App.product.content",
+      inCartBinding: "App.product.inCart"
+    });
+
+    $(function() {
+
+      App.cart = App.Cart.create();
+      App.product = App.ProductController.create({
+        cartBinding: "App.cart"
+      });
+
+      App.product.set("content", {id: 123, name: "Glen Plaid Blazer"});
+      //App.productView = App.ProductView.create();
+      //App.productView.append();
+    });
+  </script>
+</head>
+<body>
+  <script type='text/x-handlebars' >
+    {{#view App.ProductView}}
+      {{#if content}}
+        {{ content.name }}
+      {{/if}}
+      <div>
+        {{#view Em.Button target="App.product" action="addToCart" classBinding="App.product.inCart" disabledBinding="App.product.inCart"}}
+          {{cartStatus}}
+        {{/view}}
+      </div>
+    {{/view}}
+  </script>
+
+  <script type='text/x-handlebars'>
+      in your cart: <br/>
+      {{#each "App.cart.content" }}
+        {{name}}
+      {{/each}}
+  </script>
+
+</body>
+</html>
